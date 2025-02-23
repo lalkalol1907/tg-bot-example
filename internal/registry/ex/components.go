@@ -12,9 +12,10 @@ import (
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 )
 
+// Components Общие компоненты для всех делойментов
 type Components[T interface{}] struct {
-	Config *config.Config
-	Http   *echo.Echo // Сам инжектится для проб сразу после конфига. Можно использовать и для запросов
+	Config *config.Config // Сам инжектится первым
+	Http   *echo.Echo     // Сам инжектится для проб сразу после конфига, сам встает. Можно использовать и для запросов
 
 	Redis      *redis.Client
 	Logger     *otelzap.Logger
@@ -27,6 +28,7 @@ type Components[T interface{}] struct {
 	In T
 }
 
+// Общие инжекторы для всех деплойментов, T - компоненты деплоймента
 func getBaseInjectors[T any]() []Injector[T] {
 	return []Injector[T]{
 		injectors.WithRedis[T],
@@ -38,6 +40,7 @@ func getBaseInjectors[T any]() []Injector[T] {
 	}
 }
 
+// Общие пробы для всех деплойментов
 func getBaseProbes[T any](components *Components[T]) []Probe {
 	return []Probe{
 		func(ctx context.Context) error {

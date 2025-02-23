@@ -11,6 +11,7 @@ import (
 	"os/signal"
 )
 
+// CloseFunc чистящая функция при завершении работы
 type CloseFunc = func() error
 
 type Injector[T any] func(c *Components[T]) (CloseFunc, error)
@@ -18,26 +19,35 @@ type Runnable = func(ctx context.Context)
 type Probe = func(ctx context.Context) error
 
 type DiContainer[T any] struct {
+	// Компоненты, T - компоненты деплоймента
 	Components *Components[T]
+	// Очередь завкрытия при завершении, выполняется в обратном порядке
 	closeQueue []CloseFunc
 
+	// Исполняемая функция
 	runnable Runnable
-	probes   []Probe
+	// Функции проб
+	probes []Probe
 }
 
+// Provide Функция инжекторов
 func (d *DiContainer[T]) Provide(injectors ...Injector[T]) *Components[T] {
 	c := new(Components[T])
 	q := make([]CloseFunc, 0)
 
+	// Парсим конфиг
 	c.Config = config.NewConfig()
 	if err := c.Config.Parse(); err != nil {
 		panic(fmt.Errorf("error parsing config: %v", err))
 	}
 
+	// Создаем хттп сервер
 	d.Components.Http = echo.New()
 
+	// Добавляем инжекторы деплоймента к базовым
 	injectors = append(getBaseInjectors[T](), injectors...)
 
+	// Инжектим по порядку
 	for _, inj := range injectors {
 		closing, err := inj(c)
 
@@ -45,6 +55,7 @@ func (d *DiContainer[T]) Provide(injectors ...Injector[T]) *Components[T] {
 			panic(fmt.Errorf("dependency error: %v", err))
 		}
 
+		// Если есть "чистилка", добавляем в массив
 		if closing != nil {
 			q = append(q, closing)
 		}
@@ -71,17 +82,21 @@ func (d *DiContainer[T]) runHttpWithProbes() error {
 }
 
 func (d *DiContainer[T]) Run(r Runnable) {
+	// Создаем контекст для грейсфула
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
+	// Слушаем его
 	go d.initGracefulShutdown(ctx)
 
+	// Запускаем аппку
 	go func() {
 		r(ctx)
 		d.Components.Logger.Warn("application exited")
 		cancel()
 	}()
 
+	// ЗЗапускаем хттп (в аппке не надо запускать его)
 	if err := d.runHttpWithProbes(); err != nil {
 		d.Components.Logger.Fatal("server closed", zap.Error(err))
 	}
