@@ -9,7 +9,7 @@ import (
 )
 
 type PollTransport struct {
-	Transport
+	BaseTransport
 }
 
 func (t *PollTransport) Run(ctx context.Context) {

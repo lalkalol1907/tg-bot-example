@@ -8,7 +8,7 @@ import (
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 )
 
-type Transport struct {
+type BaseTransport struct {
 	stepper *stepper.Stepper
 	logger  *otelzap.Logger
 	service bot2.Service
@@ -16,7 +16,7 @@ type Transport struct {
 	bot *bot.Bot
 }
 
-func (t *Transport) registerFeatures() {
+func (t *BaseTransport) registerFeatures() {
 	t.stepper.AddFeature("example", "/start", example.NewExampleFeature(t.service))
 }
 
@@ -25,8 +25,8 @@ func NewTransport(
 	logger *otelzap.Logger,
 	service bot2.Service,
 	bot *bot.Bot,
-) *Transport {
-	return &Transport{
+) *BaseTransport {
+	return &BaseTransport{
 		stepper: stepper,
 		logger:  logger,
 		bot:     bot,

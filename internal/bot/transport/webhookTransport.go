@@ -10,7 +10,7 @@ import (
 )
 
 type WebhookTransport struct {
-	Transport
+	BaseTransport
 
 	e *echo.Echo
 }
@@ -28,7 +28,7 @@ func NewWebhookTransport(
 	e *echo.Echo,
 ) bot2.WebhookTransport {
 	return &WebhookTransport{
-		Transport: *NewTransport(stepper, logger, service, bot),
-		e:         e,
+		BaseTransport: *NewTransport(stepper, logger, service, bot),
+		e:             e,
 	}
 }
