@@ -29,6 +29,7 @@ func NewTransport(
 	return &BaseTransport{
 		stepper: stepper,
 		logger:  logger,
+		service: service,
 		bot:     bot,
 	}
 }
