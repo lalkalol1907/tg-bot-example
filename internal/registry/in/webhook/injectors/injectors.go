@@ -8,8 +8,8 @@ import (
 )
 
 func WithWebhookTransport(c *ex.Components[webhook.Components]) (ex.CloseFunc, error) {
-	c.In.BotTransport = transport.NewWebhookTransport(c.BotStepper, c.Logger, c.Service, c.In.Bot)
-	return c.In.BotTransport.Stop, nil
+	c.In.BotTransport = transport.NewWebhookTransport(c.BotStepper, c.Logger, c.Service, c.In.Bot, c.Http)
+	return nil, nil
 }
 
 func WithBot(c *ex.Components[webhook.Components]) (ex.CloseFunc, error) {

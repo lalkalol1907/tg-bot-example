@@ -5,7 +5,7 @@ import (
 	"bot-test/internal/registry/in/polling/injectors"
 )
 
-func BotPolling() {
+func Polling() {
 	d := ex.NewDiContainer[Components]()
 
 	c := d.Provide(

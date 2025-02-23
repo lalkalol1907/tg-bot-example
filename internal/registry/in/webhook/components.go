@@ -8,5 +8,5 @@ import (
 type Components struct {
 	Bot *bot2.Bot
 
-	BotTransport bot.Transport
+	BotTransport bot.WebhookTransport
 }

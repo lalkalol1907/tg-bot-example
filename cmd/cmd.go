@@ -7,8 +7,8 @@ import (
 )
 
 var commands = map[string]func(){
-	"polling": polling.BotPolling,
-	"webhook": webhook.BotWebhook,
+	"polling": polling.Polling,
+	"webhook": webhook.Webhook,
 }
 
 func Run() {

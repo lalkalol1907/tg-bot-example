@@ -5,7 +5,7 @@ import (
 	"bot-test/internal/registry/in/webhook/injectors"
 )
 
-func BotWebhook() {
+func Webhook() {
 	d := ex.NewDiContainer[Components]()
 
 	c := d.Provide(
