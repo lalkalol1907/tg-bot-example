@@ -6,7 +6,6 @@ func Watcher() {
 	d := ex.NewDiContainer[Components]()
 
 	c := d.Provide(
-		WithTdlib,
 		WithLockService,
 		WithTransport,
 		WithService,

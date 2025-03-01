@@ -4,6 +4,7 @@ import (
 	"bot-test/internal/features/watcher"
 	"bot-test/internal/features/watcher/types"
 	lockservice "bot-test/pkg/lock-service"
+	"bot-test/pkg/models"
 	tagcheck "bot-test/pkg/tag-check"
 	"context"
 	"errors"
@@ -16,8 +17,9 @@ type Service struct {
 	lockService *lockservice.LockService
 	logger      *otelzap.Logger
 
-	chatRepository watcher.IChatRepository
-	tagRepository  watcher.ITagRepository
+	chatRepository   watcher.IChatRepository
+	tagRepository    watcher.ITagRepository
+	workerRepository watcher.IWorkerRepository
 }
 
 func (s *Service) ProcessMessage(ctx context.Context, update *types.IncomingMessage) error {
@@ -50,7 +52,7 @@ func (s *Service) ProcessMessage(ctx context.Context, update *types.IncomingMess
 	}
 
 	// Прогоняем на совпадения
-	findResult, err := tagcheck.FindTags(update.Text, tags)
+	_, err = tagcheck.FindTags(update.Text, tags)
 	if err != nil {
 		s.logger.Ctx(ctx).Warn("error finding tags", zap.Error(err))
 		return err
@@ -63,6 +65,16 @@ func (s *Service) ProcessMessage(ctx context.Context, update *types.IncomingMess
 	return nil
 }
 
-func NewService(lockService *lockservice.LockService, logger *otelzap.Logger) watcher.IService {
-	return &Service{lockService: lockService, logger: logger}
+func (s *Service) GetWorkers(ctx context.Context) ([]*models.Worker, error) {
+	return s.workerRepository.GetWorkers(ctx)
+}
+
+func NewService(
+	lockService *lockservice.LockService,
+	logger *otelzap.Logger,
+) watcher.IService {
+	return &Service{
+		lockService: lockService,
+		logger:      logger,
+	}
 }

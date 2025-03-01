@@ -1,25 +1,63 @@
 package transport
 
 import (
+	"bot-test/config"
 	"bot-test/internal/features/watcher"
 	"bot-test/internal/features/watcher/types"
+	auth_service "bot-test/pkg/auth-service"
+	"bot-test/pkg/models"
 	"context"
 	"errors"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"github.com/zelenin/go-tdlib/client"
 	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
+	"path/filepath"
 )
 
 type Transport struct {
-	tdlib   *client.Client
 	logger  *otelzap.Logger
 	service watcher.IService
+	config  *config.Config
+
+	authService auth_service.IAuthService
 
 	listener *client.Listener
 }
 
-func (t *Transport) Start(ctx context.Context) {
-	t.listener = t.tdlib.GetListener()
+func (t *Transport) initWatcher(ctx context.Context, worker *models.Worker) error {
+	tdlibParameters := &client.SetTdlibParametersRequest{
+		UseTestDc:           false,
+		DatabaseDirectory:   filepath.Join(".tdlib", "database"),
+		FilesDirectory:      filepath.Join(".tdlib", "files"),
+		UseFileDatabase:     false,
+		UseChatInfoDatabase: false,
+		UseMessageDatabase:  false,
+		UseSecretChats:      false,
+		ApiId:               t.config.TG.ApiId,
+		ApiHash:             t.config.TG.ApiHash,
+		SystemLanguageCode:  "en",
+		DeviceModel:         "Server",
+		SystemVersion:       "1.0.0",
+		ApplicationVersion:  "1.0.0",
+	}
+	// TODO: Авторизация через бота (не забыть мютекс по овнеру)
+	authorizer := client.ClientAuthorizer(tdlibParameters)
+	go t.authService.Authorize(ctx, authorizer, worker)
+	go client.CliInteractor(authorizer)
+
+	tdlibClient, err := client.NewClient(
+		authorizer,
+		client.WithLogVerbosity(&client.SetLogVerbosityLevelRequest{
+			NewVerbosityLevel: 0,
+		}),
+	)
+	if err != nil {
+		return err
+	}
+
+	listener := tdlibClient.GetListener()
+	defer listener.Close()
 
 	for update := range t.listener.Updates {
 		if update.GetType() == client.TypeUpdateNewMessage {
@@ -59,6 +97,27 @@ func (t *Transport) Start(ctx context.Context) {
 
 		}
 	}
+	return nil
+}
+
+func (t *Transport) Start(ctx context.Context) {
+	workers, err := t.service.GetWorkers(ctx)
+	if err != nil {
+		// TODO: runner with err
+	}
+
+	g, gctx := errgroup.WithContext(ctx)
+
+	for _, w := range workers {
+		g.Go(func() error {
+			return t.initWatcher(gctx, w)
+		})
+	}
+
+	err = g.Wait()
+	if err != nil {
+		// TODO: runner with err
+	}
 }
 
 func (t *Transport) Stop() error {
@@ -70,9 +129,9 @@ func (t *Transport) Stop() error {
 	return nil
 }
 
-func NewTransport(tdlib *client.Client, logger *otelzap.Logger) watcher.ITransport {
+func NewTransport(config *config.Config, logger *otelzap.Logger) watcher.ITransport {
 	return &Transport{
-		tdlib:  tdlib,
+		config: config,
 		logger: logger,
 	}
 }
