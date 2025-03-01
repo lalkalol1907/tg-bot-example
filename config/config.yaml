@@ -1,0 +1,26 @@
+bot:
+  token: 7648328078:AAGezSXzBjeKUA322aLCSv2BYcoSFvbdxMI
+
+tg:
+  api_id: 26378134
+  api_hash: f081f6b475a04a811a7bc00ebdd29689
+
+redis:
+  port: 6379
+  host: localhost
+
+http:
+  port: 3000
+
+db:
+  port: 5432
+  host: localhost
+  username: postgres
+  password: postgres
+  dbname: postgres
+  sslmode: disable
+
+kafka:
+  producer_topics:
+    message_to_bot: message-to-bot
+    message_to_sender: message-to-sender

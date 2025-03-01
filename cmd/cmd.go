@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	watcher "bot-test/internal/registry/in/chat-watcher"
 	"bot-test/internal/registry/in/polling"
 	"bot-test/internal/registry/in/webhook"
 	"flag"
@@ -9,6 +10,7 @@ import (
 var commands = map[string]func(){
 	"polling": polling.Polling,
 	"webhook": webhook.Webhook,
+	"watcher": watcher.Watcher,
 }
 
 func Run() {

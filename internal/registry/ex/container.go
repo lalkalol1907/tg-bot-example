@@ -42,7 +42,7 @@ func (d *DiContainer[T]) Provide(injectors ...Injector[T]) *Components[T] {
 	}
 
 	// Создаем хттп сервер
-	d.Components.Http = echo.New()
+	c.Http = echo.New()
 
 	// Добавляем инжекторы деплоймента к базовым
 	injectors = append(getBaseInjectors[T](), injectors...)
@@ -78,7 +78,7 @@ func (d *DiContainer[T]) runHttpWithProbes() error {
 		//
 		return c.String(http.StatusOK, "")
 	})
-	return d.Components.Http.Start(d.Components.Config.Http.Port)
+	return d.Components.Http.Start(":" + d.Components.Config.Http.Port)
 }
 
 func (d *DiContainer[T]) Run(r Runnable) {
