@@ -6,17 +6,21 @@ import (
 	"fmt"
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
-	"strings"
+)
+
+var (
+	deleteGoodPrefix = "good:delete"
+	deleteChatPrefix = "chat:delete"
 )
 
 type Commands struct {
-	repository bot2.IRepository
+	service bot2.IService
 }
 
 func (c *Commands) GetGoods(ctx context.Context, b *bot.Bot, update *models.Update) error {
 	chatID := update.Message.Chat.ID
 
-	goods, err := c.repository.GetGoods(ctx, chatID)
+	goods, err := c.service.GetGoodsByOwnerId(ctx, chatID)
 	if err != nil {
 		return err
 	}
@@ -37,10 +41,34 @@ func (c *Commands) GetGoods(ctx context.Context, b *bot.Bot, update *models.Upda
 	return err
 }
 
+func (c *Commands) GetChats(ctx context.Context, b *bot.Bot, update *models.Update) error {
+	chatID := update.Message.Chat.ID
+
+	chats, err := c.service.GetChatsByOwnerId(ctx, chatID) // TODO: подумать тут и в миграции насчет имени чата
+	if err != nil {
+		return err
+	}
+
+	result := "Твои чаты:\n"
+
+	for i, ch := range chats {
+		result += fmt.Sprintf("%d", ch.Id)
+		if i != len(chats)-1 {
+			result += "\n"
+		}
+	}
+
+	_, err = b.SendMessage(ctx, &bot.SendMessageParams{
+		Text:   result,
+		ChatID: chatID,
+	})
+	return err
+}
+
 func (c *Commands) DeleteGood(ctx context.Context, b *bot.Bot, update *models.Update) error {
 	chatID := update.Message.Chat.ID
 
-	goods, err := c.repository.GetGoods(ctx, chatID)
+	goods, err := c.service.GetGoodsByOwnerId(ctx, chatID)
 	if err != nil {
 		return err
 	}
@@ -52,7 +80,7 @@ func (c *Commands) DeleteGood(ctx context.Context, b *bot.Bot, update *models.Up
 	for i, g := range goods {
 		row = append(row, models.InlineKeyboardButton{
 			Text:         g.Name,
-			CallbackData: fmt.Sprintf("good:delete:%s", g.Id), // TODO: Вынести ключ в константы
+			CallbackData: fmt.Sprintf("%s:%s", deleteGoodPrefix, g.Id), // TODO: Вынести ключ в константы
 		})
 		if i%2 == 1 || i == len(goods)-1 {
 			keyboard = append(keyboard, row)
@@ -68,33 +96,37 @@ func (c *Commands) DeleteGood(ctx context.Context, b *bot.Bot, update *models.Up
 	return err
 }
 
-func (c *Commands) CallbackHandler(ctx context.Context, b *bot.Bot, update *models.CallbackQuery) error {
-	command := update.Data
+func (c *Commands) DeleteChat(ctx context.Context, b *bot.Bot, update *models.Update) error {
+	chatID := update.Message.Chat.ID
 
-	fmt.Println("aboba")
-
-	if strings.HasPrefix(command, "good:delete") {
-		spl := strings.Split(command, ":")
-		goodID := spl[len(spl)-1]
-		err := c.repository.DeleteGood(ctx, goodID)
-
-		text := "Товар удален"
-
-		if err != nil {
-			text = "Ошибка удаления товара"
-		}
-
-		_, err = b.AnswerCallbackQuery(ctx, &bot.AnswerCallbackQueryParams{
-			CallbackQueryID: update.ID,
-			Text:            text,
-			ShowAlert:       true,
-		})
+	chats, err := c.service.GetChatsByOwnerId(ctx, chatID)
+	if err != nil {
 		return err
 	}
 
-	return nil
+	keyboard := make([][]models.InlineKeyboardButton, 0)
+
+	row := make([]models.InlineKeyboardButton, 0)
+
+	for i, ch := range chats {
+		row = append(row, models.InlineKeyboardButton{
+			Text:         fmt.Sprintf("%d", ch.Id),
+			CallbackData: fmt.Sprintf("%s:%d", deleteChatPrefix, ch.Id), // TODO: Вынести ключ в константы
+		})
+		if i%2 == 1 || i == len(chats)-1 {
+			keyboard = append(keyboard, row)
+			row = make([]models.InlineKeyboardButton, 0)
+		}
+	}
+
+	_, err = b.SendMessage(ctx, &bot.SendMessageParams{
+		Text:        "Выбери чат для удаления",
+		ChatID:      chatID,
+		ReplyMarkup: models.InlineKeyboardMarkup{InlineKeyboard: keyboard},
+	})
+	return err
 }
 
-func NewCommands(repository bot2.IRepository) bot2.ICommands {
-	return &Commands{repository: repository}
+func NewCommands(service bot2.IService) bot2.ICommands {
+	return &Commands{service: service}
 }

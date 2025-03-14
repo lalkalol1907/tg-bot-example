@@ -20,9 +20,12 @@ type BaseTransport struct {
 
 func (t *BaseTransport) registerFeatures() {
 	t.stepper.
-		AddFeature("AddGood", "/add-good", features.NewAddGoodFeature(t.service)).
-		AddSingleStepCommand("/delete-good", t.commands.DeleteGood).
-		AddSingleStepCommand("/get-goods", t.commands.GetGoods).
+		AddFeature("AddGood", "/add_good", features.NewAddGoodFeature(t.service)).
+		AddFeature("AddChat", "/add_chat", features.NewAddChatFeature(t.service)).
+		AddSingleStepCommand("/delete_good", t.commands.DeleteGood).
+		AddSingleStepCommand("/get_goods", t.commands.GetGoods).
+		AddSingleStepCommand("/delete_chat", t.commands.DeleteChat).
+		AddSingleStepCommand("/get_chats", t.commands.GetChats).
 		AddCallbackHandler(t.commands.CallbackHandler)
 }
 

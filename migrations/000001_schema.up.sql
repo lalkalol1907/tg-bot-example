@@ -17,7 +17,7 @@ create table tag
 create table chat
 (
     id        bigint primary key not null,
-    owner_id  bigint             not null,
+    owner_id  bigint             not null
 );
 
 create index concurrently if not exists good_owner_idx on good (owner_id);

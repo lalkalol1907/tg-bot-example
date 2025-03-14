@@ -1,0 +1,1 @@
+insert into chat(id, owner_id) VALUES ($1, $2)

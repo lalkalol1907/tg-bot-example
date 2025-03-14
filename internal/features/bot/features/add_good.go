@@ -29,7 +29,7 @@ func (f *AddGoodFeature) AddGood(ctx context.Context, b *bot.Bot, update *models
 	name := update.Message.Text
 	chatId := update.Message.Chat.ID
 
-	err := f.service.SaveGood(ctx, chatId, name)
+	err := f.service.AddGood(ctx, chatId, name)
 	if err != nil {
 		return types.StepExecutionResult{}, err
 	}

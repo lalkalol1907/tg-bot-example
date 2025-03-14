@@ -32,7 +32,7 @@ func WithService(c *ex.Components[Components]) (ex.CloseFunc, error) {
 }
 
 func WithCommands(c *ex.Components[Components]) (ex.CloseFunc, error) {
-	c.In.Commands = commands.NewCommands(c.In.Repository)
+	c.In.Commands = commands.NewCommands(c.In.Service)
 	return nil, nil
 }
 

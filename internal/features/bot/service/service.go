@@ -9,8 +9,8 @@ type Service struct {
 	repository bot2.IRepository
 }
 
-func (s *Service) SaveGood(ctx context.Context, ownerId int64, name string) error {
-	return s.repository.SaveGood(ctx, ownerId, name)
+func (s *Service) AddGood(ctx context.Context, ownerId int64, name string) error {
+	return s.repository.AddGood(ctx, ownerId, name)
 }
 
 func (s *Service) DeleteGood(ctx context.Context, goodId string) error {
