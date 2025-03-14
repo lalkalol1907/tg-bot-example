@@ -2,8 +2,6 @@ package ex
 
 import (
 	"bot-test/internal/features/bot/cache"
-	"bot-test/internal/features/bot/respository"
-	"bot-test/internal/features/bot/service"
 	"context"
 	"fmt"
 	"github.com/jmoiron/sqlx"
@@ -36,17 +34,7 @@ func WithRedis[T any](c *Components[T]) (CloseFunc, error) {
 }
 
 func WithBotCache[T any](c *Components[T]) (CloseFunc, error) {
-	c.BotCache = cache.NewBotCache(c.Redis)
-	return nil, nil
-}
-
-func WithRepository[T any](c *Components[T]) (CloseFunc, error) {
-	c.Repository = respository.NewRepository(c.Redis)
-	return nil, nil
-}
-
-func WithService[T any](c *Components[T]) (CloseFunc, error) {
-	c.Service = service.NewService(c.Repository)
+	c.BotCache = cache.NewBotCache(c.Redis, c.Config.Redis.CachePrefix)
 	return nil, nil
 }
 

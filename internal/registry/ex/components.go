@@ -2,7 +2,6 @@ package ex
 
 import (
 	"bot-test/config"
-	bot2 "bot-test/internal/features/bot"
 	"context"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
@@ -17,12 +16,10 @@ type Components[T interface{}] struct {
 	Config *config.Config // Сам инжектится первым
 	Http   *echo.Echo     // Сам инжектится для проб сразу после конфига, сам встает. Можно использовать и для запросов
 
-	Logger     *otelzap.Logger
-	Redis      *redis.Client
-	DB         *sqlx.DB
-	Repository bot2.IRepository
-	Service    bot2.IService
-	BotCache   types.Cache
+	Logger   *otelzap.Logger
+	Redis    *redis.Client
+	DB       *sqlx.DB
+	BotCache types.Cache
 
 	BotStepper *stepper.Stepper
 
@@ -34,8 +31,6 @@ func getBaseInjectors[T any]() []Injector[T] {
 	return []Injector[T]{
 		WithRedis[T],
 		WithLogger[T],
-		WithRepository[T],
-		WithService[T],
 		WithBotCache[T],
 		WithBotStepper[T],
 		WithDB[T],

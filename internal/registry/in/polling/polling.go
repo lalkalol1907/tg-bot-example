@@ -8,7 +8,10 @@ func Polling() {
 	d := ex.NewDiContainer[Components]()
 
 	c := d.Provide(
+		WithRepository,
+		WithService,
 		WithBot,
+		WithCommands,
 		WithPollTransport,
 	)
 

@@ -9,12 +9,12 @@ type Service struct {
 	repository bot2.IRepository
 }
 
-func (s *Service) SaveMessage(ctx context.Context, chatId int64, message string) error {
-	return s.repository.SaveMessage(ctx, chatId, message)
+func (s *Service) SaveGood(ctx context.Context, ownerId int64, name string) error {
+	return s.repository.SaveGood(ctx, ownerId, name)
 }
 
-func (s *Service) GetMessage(ctx context.Context, chatId int64) (string, error) {
-	return s.repository.GetMessage(ctx, chatId)
+func (s *Service) DeleteGood(ctx context.Context, goodId string) error {
+	return s.repository.DeleteGood(ctx, goodId)
 }
 
 func NewService(repository bot2.IRepository) bot2.IService {

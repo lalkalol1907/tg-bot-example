@@ -14,8 +14,9 @@ type Config struct {
 	} `yaml:"bot"`
 
 	Redis struct {
-		Port string `yaml:"port"`
-		Host string `yaml:"host"`
+		Port        string `yaml:"port"`
+		Host        string `yaml:"host"`
+		CachePrefix string `yaml:"cache_prefix"`
 	} `yaml:"redis"`
 
 	Http struct {
@@ -38,8 +39,7 @@ type Config struct {
 
 	Kafka struct {
 		ProducerTopics struct {
-			MessageToBot    string `yaml:"message_to_bot"`
-			MessageToSender string `yaml:"message_to_sender"`
+			NewMessage string `yaml:"new_message"`
 		} `yaml:"producer_topics"`
 	} `yaml:"kafka"`
 	//WebHookPort string

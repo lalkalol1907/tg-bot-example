@@ -33,9 +33,10 @@ func NewWebhookTransport(
 	service bot3.IService,
 	bot *bot.Bot,
 	e *echo.Echo,
+	commands bot3.ICommands,
 ) bot3.IBaseTransport {
 	return &WebhookTransport{
-		BaseTransport: *NewTransport(stepper, logger, service, bot),
+		BaseTransport: *NewTransport(stepper, logger, service, bot, commands),
 		e:             e,
 	}
 }

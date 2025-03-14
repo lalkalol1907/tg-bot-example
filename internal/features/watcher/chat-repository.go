@@ -6,5 +6,5 @@ import (
 )
 
 type IChatRepository interface {
-	GetChatByChatIdWorkerId(ctx context.Context, chatId int64, workerId int64) (*models.Chat, error)
+	GetChatById(ctx context.Context, chatId int64, workerId int64) (*models.Chat, error)
 }

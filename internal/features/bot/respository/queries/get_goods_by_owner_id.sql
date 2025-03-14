@@ -1,0 +1,1 @@
+select * from good where owner_id = $1

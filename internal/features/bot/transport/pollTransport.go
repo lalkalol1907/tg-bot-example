@@ -28,8 +28,9 @@ func NewPollTransport(
 	logger *otelzap.Logger,
 	service bot3.IService,
 	bot *bot.Bot,
+	commands bot3.ICommands,
 ) bot3.IPollTransport {
 	return &PollTransport{
-		*NewTransport(stepper, logger, service, bot),
+		*NewTransport(stepper, logger, service, bot, commands),
 	}
 }

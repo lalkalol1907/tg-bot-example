@@ -1,0 +1,1 @@
+insert into good (name, owner_id) values ($1, $2)

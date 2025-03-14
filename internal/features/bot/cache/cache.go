@@ -60,8 +60,9 @@ func (c *BotCache) Del(ctx context.Context, chatId int64) error {
 	return nil
 }
 
-func NewBotCache(redisClient *redis.Client) types.Cache {
+func NewBotCache(redisClient *redis.Client, prefix string) types.Cache {
 	return &BotCache{
 		redisClient: redisClient,
+		prefix:      prefix,
 	}
 }

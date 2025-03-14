@@ -6,7 +6,11 @@ import (
 )
 
 type Components struct {
-	Bot *bot2.Bot
+	Bot      *bot2.Bot
+	Commands bot.ICommands
+
+	Repository bot.IRepository
+	Service    bot.IService
 
 	BotTransport bot.IBaseTransport
 }

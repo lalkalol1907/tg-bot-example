@@ -3,6 +3,6 @@ package bot
 import "context"
 
 type IService interface {
-	SaveMessage(ctx context.Context, chatId int64, message string) error
-	GetMessage(ctx context.Context, chatId int64) (string, error)
+	SaveGood(ctx context.Context, ownerId int64, name string) error
+	DeleteGood(ctx context.Context, goodId string) error
 }
